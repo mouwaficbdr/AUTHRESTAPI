@@ -1,0 +1,31 @@
+{
+  "name": "express-tp",
+  "version": "1.0.0",
+  "type": "module",
+  "imports": {
+    "#lib/*": "./src/lib/*.js",
+    "#controllers/*": "./src/controllers/*.js",
+    "#services/*": "./src/services/*.js",
+    "#middlewares/*": "./src/middlewares/*.js",
+    "#routes/*": "./src/routes/*.js",
+    "#schemas/*": "./src/schemas/*.js",
+    "#dto/*": "./src/dto/*.js"
+  },
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "argon2"
+    ]
+  },
+  "devDependencies": {
+    "prisma": "^7.2.0"
+  }
+}
