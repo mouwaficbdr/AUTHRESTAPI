@@ -7,40 +7,89 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  password String
+  id String @id
   email String @unique
+  password String
+  firstName String
+  lastName String
   emailVerifiedAt DateTime?
+  twoFactorSecret String
   twoFactorEnableAt DateTime?
   disabledAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
 
   // Pour accéder à la refreshToken d'un utilisateur
-  refreshToken RefreshToken?
+  refreshToken RefreshToken[]
+  oauth OAuthAccount[]
+  blacklistAccessToken BlacklistedAccessToken[]
+  verifytoken VerificationToken[]
+  passwordResetToken PasswordResetToken[]
+  loginHistory LoginHistory[]
+}
+
+model OAuthAccount {
+  id String @id
+  provider String
+  providerId String
+  @@unique([provider, providerId])
+  createdAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
+  userId String
 }
 
 model RefreshToken {
-  token String @id
+  id String @id
+  token String
+  userAgent String
+  ipAddress String
   revokedAt DateTime?
-  expiredAt DateTime
+  expiresAt DateTime
+  createdAt DateTime @default(now())
   
   // Pour savoir à qui appartient un refresh token
   user User @relation(fields: [userId], references: [id])
-  userId Int @unique
+  userId String @unique
 }
 
 model BlacklistedAccessToken {
-  accesToken String @id
+  id String @id
+  token String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
-  // Le prof a mis "expiresAt", may be a mistake (monsieur vous voyez ça, corrigez nous si on a tort s'il vour plait :) )
-  expiredAt DateTime
+  user User @relation(fields: [userId], references: [id])
+  userId String
 }
 
 model VerificationToken {
-  emailVerifyToken String @id
+  id String @id
+  emailVerifyToken String
   expiredAt DateTime
+  createdAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model PasswordResetToken {
+  id String @id
+  token String
+  expiresAt DateTime
+  createdAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
+  userId String
 }
 
 model LoginHistory {
-  email String @id
+  id String @id
+  ipAddress String
+  userAgent String
   success Boolean
+  createdAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
+  userId String
 }
