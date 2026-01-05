@@ -35,5 +35,8 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  logger.info(`Serveur démarré sur <http://localhost>:${PORT}`);
+  logger.info(`Serveur démarré sur http://localhost:${PORT}`);
 });
+
+// AJOUTE CETTE LIGNE :
+export default app;
