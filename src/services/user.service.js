@@ -2,6 +2,7 @@ import prisma from "#lib/prisma";
 import { randomUUID } from 'node:crypto';
 import { hashPassword, verifyPassword } from "#lib/password";
 import { ConflictException, UnauthorizedException, NotFoundException } from "#lib/exceptions";
+import { signToken, verifyToken } from "#lib/jwt";
 
 export class UserService {
   static async register(data) {
@@ -77,6 +78,26 @@ export class UserService {
             } 
           };
 
+  }
+
+  static async logout(userId, accessToken, refreshToken){
+
+    // Invalider le Refresh Token dans la base
+    await prisma.refreshToken.deleteMany({
+      where: { userId: userId, token: refreshToken }
+    });
+
+  // Ajouter l'Access Token à la Blacklist
+    const payload = await verifyToken(accessToken);
+    
+    await prisma.blacklistedAccessToken.create({
+      data: {
+        id: randomUUID(),
+        token: accessToken,
+        userId: userId,
+        expiresAt: new Date(payload.exp * 1000) 
+      }
+    });
   }
 
   static async findAll() {

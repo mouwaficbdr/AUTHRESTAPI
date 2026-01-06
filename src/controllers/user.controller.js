@@ -36,6 +36,15 @@ export class UserController {
     });
   }
 
+  static async logout(req, res) {
+    const accessToken = req.headers.authorization?.split(' ')[1];
+    const { refreshToken } = req.body;
+
+    await UserService.logout(req.user.id, accessToken, refreshToken);
+    
+    res.json({ success: true, message: "Déconnexion réussie" });
+  }
+
   static async getAll(req, res) {
     const users = await UserService.findAll();
     res.json({
