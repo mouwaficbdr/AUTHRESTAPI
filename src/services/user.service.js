@@ -34,7 +34,49 @@ export class UserService {
       throw new UnauthorizedException("Identifiants invalides");
     }
     
-    return user;
+        //Generation des tokens
+      const accessToken = await signToken({ id: user.id, email: user.email }, '15m');
+      const refreshToken = await signToken({ id: user.id }, '7d');
+      
+    //Stocker le refresh token dans la BDD
+      await prisma.refreshToken.upsert({
+        where: { userId: user.id },
+        update: {
+          token: refreshToken,
+          ipAddress,
+          userAgent,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 jours
+        },
+        create: {
+          id: randomUUID(),
+          token: refreshToken,
+          userId: user.id,
+          ipAddress,
+          userAgent,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        }
+      });
+
+    //Stocker le succes dans LoginHistory
+      await prisma.loginHistory.create({
+      data: {
+        id: randomUUID(),
+        userId: user.id,
+        ipAddress,
+        userAgent,
+        success: true,
+        createdAt: new Date()
+      }
+    });
+
+    return { accessToken, 
+             refreshToken, 
+             user: { 
+              id: user.id, 
+              email: user.email 
+            } 
+          };
+
   }
 
   static async findAll() {
