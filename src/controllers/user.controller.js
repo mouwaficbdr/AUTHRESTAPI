@@ -5,6 +5,7 @@ import { validateData } from "#lib/validate";
 import { registerSchema, loginSchema } from "#schemas/user.schema";
 
 export class UserController {
+  //register
   static async register(req, res) {
     const validatedData = validateData(registerSchema, req.body);
     const user = await UserService.register(validatedData);
@@ -17,6 +18,7 @@ export class UserController {
     });
   }
 
+  //Login
   static async login(req, res) {
     const validatedData = validateData(loginSchema, req.body);
     const { email, password } = validatedData;
@@ -36,6 +38,7 @@ export class UserController {
     });
   }
 
+  //Logout
   static async logout(req, res) {
     const accessToken = req.headers.authorization?.split(' ')[1];
     const { refreshToken } = req.body;
@@ -53,6 +56,15 @@ export class UserController {
     });
   }
 
+
+  //Refresh
+  static async refresh(req, res) {
+    const { refreshToken } = req.body;
+    const result = await UserService.refresh(refreshToken, req.ip, req.headers['user-agent']);
+    res.json({ success: true, ...result });
+  }
+
+  //Search User by Id
   static async getById(req, res) {
     const user = await UserService.findById(parseInt(req.params.id));
     res.json({

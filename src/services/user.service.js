@@ -80,6 +80,32 @@ export class UserService {
 
   }
 
+
+  static async refresh(token, userAgent, ipAddress){
+
+    //vérifier la validité du JWT
+    const payload = await verifyToken(token);
+
+    //Chercher le Token 
+    const storedToken = await prisma.refreshToken.findFirst({
+      where : {
+        token : token,
+        userId : payload.id,
+        revokeAt : null
+      }
+    });
+
+    if(!storedToken || storedToken.expiresAt < new Date()){
+      throw new UnauthorizedException("Session expirée ou invalide");
+    }
+
+    const newAccessToken = await signToken({id: payload.id}, '15m');
+
+    return {
+      accessToken : newAccessToken
+    }
+  }
+  
   static async logout(userId, accessToken, refreshToken){
 
     // Invalider le Refresh Token dans la base
@@ -99,6 +125,8 @@ export class UserService {
       }
     });
   }
+
+
 
   static async findAll() {
     return prisma.user.findMany();
