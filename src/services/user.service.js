@@ -33,7 +33,7 @@ export class UserService {
     if (!user || !(await verifyPassword(user.password, password))) {
       throw new UnauthorizedException("Identifiants invalides");
     }
-
+    
     return user;
   }
 
