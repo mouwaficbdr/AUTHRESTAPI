@@ -38,5 +38,4 @@ app.listen(PORT, () => {
   logger.info(`Serveur démarré sur http://localhost:${PORT}`);
 });
 
-// AJOUTE CETTE LIGNE :
 export default app;
