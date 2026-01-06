@@ -21,13 +21,18 @@ export class UserController {
     const validatedData = validateData(loginSchema, req.body);
     const { email, password } = validatedData;
 
-    const user = await UserService.login(email, password);
-    const token = await signToken({ userId: user.id });
+    const {accessToken, refreshToken, user} = await UserService.login(
+      req.body.email, 
+      req.body.password,
+      req.ip,
+      req.headers['user-agent']
+    );
 
     res.json({
       success: true,
       user: UserDto.transform(user),
-      token,
+      accessToken,
+      refreshToken,
     });
   }
 
