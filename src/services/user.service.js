@@ -1,4 +1,5 @@
 import prisma from "#lib/prisma";
+import { randomUUID } from 'node:crypto';
 import { hashPassword, verifyPassword } from "#lib/password";
 import { ConflictException, UnauthorizedException, NotFoundException } from "#lib/exceptions";
 
@@ -10,11 +11,19 @@ export class UserService {
     if (existingUser) {
       throw new ConflictException("Email déjà utilisé");
     }
-
+    const Id = randomUUID();
     const hashedPassword = await hashPassword(password);
+    const now = new Date();
 
     return prisma.user.create({
-      data: { email, password: hashedPassword, firstName, lastName },
+      data: { id:Id ,
+              email, 
+              password: hashedPassword, 
+              firstName, 
+              lastName, 
+              createdAt: now, 
+              twoFactorSecret: "" 
+            },
     });
   }
 

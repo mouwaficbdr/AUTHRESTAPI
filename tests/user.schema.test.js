@@ -7,7 +7,8 @@ describe('Register exception test', ()=>{
     const invalideData = {
         email : "gogoislife",
         password : "password",
-        name : "Light"
+        firstName : "Light",
+        lastName : "Lights"
     };
     it( 'Devrait retourné un messaage d\'erreur si l\'email est invalide ',
         expect(()=>{

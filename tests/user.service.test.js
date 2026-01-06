@@ -23,9 +23,10 @@ describe('UserService - Register', () => {
   it('devrait créer un utilisateur et hacher son mot de passe', async () => {
         // 1. Arrange (Préparation)
         const userData = {
-        email: 'prof@test.com',
-        password: 'monSuperPassword123',
-        name: 'Prof AI'
+          email: 'prof@test.com',
+          password: 'monSuperPassword123',
+          firstName: 'Prof AI',
+          lastName: 'Prof ML'
         };
 
         // On simule que l'utilisateur n'existe pas encore (findUnique renvoie null)
@@ -33,7 +34,7 @@ describe('UserService - Register', () => {
         
         // On simule que la création réussit et renvoie l'utilisateur avec un ID
         prisma.user.create.mockResolvedValue({
-        id: 1,
+        id: "1SDCDSQSS",
         ...userData,
         password: 'HACHED_PASSWORD' // On simule un mot de passe haché
         });
@@ -51,7 +52,7 @@ describe('UserService - Register', () => {
         expect(args.data.password).not.toBe("monSuperPassword123");
 
         // 4. On vérifie le résultat final renvoyé par ton service
-        expect(result.id).toBe(1);
+        expect(result.id).toBe("1SDCDSQSS");
     });
 
 it('devrait lancer une ConflictException si l\'email existe déjà', async () => {
@@ -59,12 +60,13 @@ it('devrait lancer une ConflictException si l\'email existe déjà', async () =>
     const data = {
         email: "deja@pris.com",
         password: "password123",
-        name: "Test User"
+        firstName: "Test User",
+        lastName: "Test lastName"
     };
 
     // On simule que l'utilisateur EXISTE déjà
     prisma.user.findUnique.mockResolvedValue({
-        id: 99, 
+        id: "ddfdfdfqsds99", 
         email: "deja@pris.com"
     });
 
