@@ -15,5 +15,5 @@ export const generateQRCode = async (email, secret) => {
         secret
     });
 
-    return await qrcode.toDataURL(uri);
-}
+  return await qrcode.toDataURL(uri);
+};
