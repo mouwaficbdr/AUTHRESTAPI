@@ -2,7 +2,8 @@ export class UserDto {
   constructor(user) {
     this.id = user.id;
     this.email = user.email;
-    this.name = user.name;
+    this.firstName = user.firstName;
+    this.lastName = user.lastName;
     this.createdAt = user.createdAt;
   }
 

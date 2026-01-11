@@ -42,10 +42,12 @@ app.get("/", (req, res) => {
 });
 
 // Utilisation des routes
+
 app.use("/users", userRouter);
 app.use("/", userRouter); // Pour garder /register et /login à la racine
 app.use("/auth/two-factor-auth", twoFactorRouter);
 app.use("/auth/oauth", oauthRouter); // Routes OAuth
+
 
 // 404 handler
 app.use(notFoundHandler);
@@ -54,5 +56,7 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  logger.info(`Serveur démarré sur <http://localhost>:${PORT}`);
+  logger.info(`Serveur démarré sur http://localhost:${PORT}`);
 });
+
+export default app;

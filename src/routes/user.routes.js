@@ -1,12 +1,18 @@
 import { Router } from "express";
 import { UserController } from "#controllers/user.controller";
 import { asyncHandler } from "#lib/async-handler";
+import { authMiddleware } from "#middlewares/auth.middleware";
+import { forgotPassword, resetPassword } from '../controllers/auth.controller.js';
 
 const router = Router();
 
 // Inscription et Connexion
 router.post("/register", asyncHandler(UserController.register));
 router.post("/login", asyncHandler(UserController.login));
+router.post("/logout", authMiddleware, asyncHandler(UserController.logout));
+router.post("/refresh", asyncHandler(UserController.refresh));
+router.post('/forgot-password', asyncHandler(forgotPassword));
+router.post('/reset-password', asyncHandler(resetPassword));
 
 // Consultation de la liste ou d'un utilisateur
 router.get("/", asyncHandler(UserController.getAll));
