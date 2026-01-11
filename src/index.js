@@ -6,6 +6,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Validation des variables d'environnement critiques
+if (!process.env.SESSION_SECRET) {
+  throw new Error('SESSION_SECRET environment variable is required');
+}
+
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
 import { logger, httpLogger } from '#lib/logger';
 import { errorHandler } from '#middlewares/error-handler';
 import { notFoundHandler } from '#middlewares/not-found';
@@ -26,13 +35,14 @@ app.use(express.json());
 // Configuration de la session pour OAuth
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'changeme',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       maxAge: 10 * 60 * 1000, // 10 minutes
+      sameSite: 'lax', // Permet les redirections cross-site depuis OAuth providers
     },
   })
 );
