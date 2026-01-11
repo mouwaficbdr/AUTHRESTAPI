@@ -1,4 +1,5 @@
 import express from "express";
+import session from "express-session";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
@@ -9,6 +10,7 @@ import { logger, httpLogger } from "#lib/logger";
 import { errorHandler } from "#middlewares/error-handler";
 import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/user.routes";
+import oauthRouter from "#routes/oauth.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +21,20 @@ app.use(cors());
 app.use(httpLogger);
 app.use(express.json());
 
+// Configuration de la session pour OAuth
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "changeme",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 10 * 60 * 1000, // 10 minutes
+    },
+  })
+);
+
 // Routes
 app.get("/", (req, res) => {
   res.json({ success: true, message: "API Express opérationnelle" });
@@ -27,6 +43,7 @@ app.get("/", (req, res) => {
 // Utilisation des routes
 app.use("/users", userRouter);
 app.use("/", userRouter); // Pour garder /register et /login à la racine
+app.use("/auth/oauth", oauthRouter); // Routes OAuth
 
 // 404 handler
 app.use(notFoundHandler);
