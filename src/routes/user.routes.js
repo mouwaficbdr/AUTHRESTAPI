@@ -9,7 +9,7 @@ const router = Router();
 router.post("/register", asyncHandler(UserController.register));
 router.post("/login", asyncHandler(UserController.login));
 router.post("/logout", asyncHandler(authMiddleware, UserController.logout));
-router.post("/refresh", asyncHandler(UserController.login));
+router.post("/refresh", asyncHandler(UserController.refresh));
 
 // Consultation de la liste ou d'un utilisateur
 router.get("/", asyncHandler(UserController.getAll));

@@ -3,8 +3,10 @@ import { randomUUID } from 'node:crypto';
 import { hashPassword, verifyPassword } from "#lib/password";
 import { ConflictException, UnauthorizedException, NotFoundException } from "#lib/exceptions";
 import { signToken, verifyToken } from "#lib/jwt";
+import { verifyPassword, hashPassword } from '#lib/argon2';
 
 export class UserService {
+  //Fonction d'inscription
   static async register(data) {
     const { email, password, firstName, lastName } = data;
 
@@ -28,6 +30,7 @@ export class UserService {
     });
   }
 
+  //Fonction de connxion
   static async login(email, password) {
     const user = await prisma.user.findUnique({ where: { email } });
 
@@ -80,7 +83,7 @@ export class UserService {
 
   }
 
-
+  //Fonction de refresh token
   static async refresh(token, ipAddress, userAgent){
 
     //vérifier la validité du JWT
@@ -106,6 +109,7 @@ export class UserService {
     }
   }
   
+  //Fonction de deconnexion
   static async logout(userId, accessToken, refreshToken){
 
     // Invalider le Refresh Token dans la base
@@ -126,7 +130,63 @@ export class UserService {
     });
   }
 
+static async resetPassword(token, newPassword) {
+    // Trouver le token en base
+    const resetEntry = await prisma.passwordResetToken.findFirst({
+      where: { token },
+      include: { user: true } 
+    });
 
+    // Vérifier s'il existe et s'il n'est pas expiré
+    if (!resetEntry || resetEntry.expiresAt < new Date()) {
+      throw new Error("Le lien de réinitialisation est invalide ou expiré.");
+    }
+
+    // Hacher le nouveau mot de passe
+    const hashedPassword = await hashPassword(newPassword);
+
+    //Mettre à jour le password ET supprimer le token utilisé
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: resetEntry.userId },
+        data: { password: hashedPassword, updatedAt: new Date() }
+      }),
+      prisma.passwordResetToken.delete({
+        where: { id: resetEntry.id }
+      })
+    ]);
+  }
+
+  //Fonction de modification de mdp
+  static async changePassword(userId, oldPassword, newPassword) {
+    // Récupérer l'utilisateur 
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    
+    if (!user) {
+      throw new NotFoundException("Utilisateur non trouvé");
+    }
+
+    // Vérifier que l'ancien mot de passe est correct
+    const isMatch = await verifyPassword(user.password, oldPassword);
+    if (!isMatch) {
+      throw new UnauthorizedException("L'ancien mot de passe est incorrect");
+    }
+
+    // Hacher le nouveau mot de passe
+    const hashedNewPassword = await hashPassword(newPassword);
+
+    // Mettre à jour 
+    await prisma.user.update({
+      where: { id: userId },
+      data: { 
+        password: hashedNewPassword,
+        updatedAt: new Date()
+      }
+    });
+
+    // Revoker l'utilisateur de tous ses autres appareils
+    await prisma.refreshToken.deleteMany({ where: { userId } });
+  }
 
   static async findAll() {
     return prisma.user.findMany();

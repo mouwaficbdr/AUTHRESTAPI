@@ -64,6 +64,18 @@ export class UserController {
     res.json({ success: true, ...result });
   }
 
+    static async updatePassword(req, res) {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user.id; 
+
+    await UserService.changePassword(userId, oldPassword, newPassword);
+
+    res.json({
+      success: true,
+      message: "Mot de passe mis à jour avec succès. Veuillez vous reconnecter."
+    });
+  }
+
   //Search User by Id
   static async getById(req, res) {
     const user = await UserService.findById(parseInt(req.params.id));
