@@ -1,5 +1,8 @@
 import prisma from "#lib/prisma";
-import jwt from 'jsonwebtoken';
+import { UserService } from "#services/user.service";
+import { ForbiddenException, HttpException, ValidationException } from "#lib/exceptions";
+import { signToken } from "#lib/jwt";
+import { generateQRCode, generateSecret, verifyCode } from "#lib/authenticator";
 
 export const twoFactorController = {
     async setup(req, res){
@@ -41,23 +44,12 @@ export const twoFactorController = {
         const { token } = req.body;
         const id = req.user.id;
 
-        // Verifier si le token est vide d'abord (ne devrions nous pas le mettre dans un middleware ?)
+        if(token == undefined) throw new ValidationException();
         try{
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: id
-                }
-            });
+
+            const user = UserService.findById(id);
         
-            if(!user) return res.status(401).json({
-                code: 401,
-                message: "Invalid credentials"
-            });
-        
-            if(!verifyCode(token, user.TwoFASecret)) return res.status(403).json({
-                code: 403,
-                message: "User unrecognized"
-            });
+            if(!verifyCode(token, user.TwoFASecret)) throw new ForbiddenException("Code invalide")
         
             await prisma.user.update({
                 where: { id: id },
@@ -69,7 +61,7 @@ export const twoFactorController = {
         
             // Maintenant là on doit générer les 10 recovery codes pour les cas de perte.
         
-            const elevated_token = jwt.sign({ userId: id, TwoFAActivate: true }, process.env.SECRET_APP_KEY, { expiresIn: '15m' }); // Tu te demandes l'intérêt du 15min si c'est demandé every time
+            const elevated_token = signToken({ id: id, twoFactorActivate}, '15m');
 
             return res.status(200).json({
                 code: 200,
@@ -78,10 +70,7 @@ export const twoFactorController = {
             })
             
         }catch(error){
-            return res.status(500).json({
-                code: 500,
-                message: error.name
-            });
+            throw new HttpException(500, error.message);
         }
     },
 
@@ -89,20 +78,11 @@ export const twoFactorController = {
         const { token } = req.body;
         const id = req.user.userId;
 
+        if(token == undefined) throw new ValidationException();
         try{
-            const user = await prisma.user.findUnique({
-                where: { id: id }
-            });
+            const user = UserService.findById(id);
         
-            if(!user) return res.status(401).json({
-                code: 401,
-                message: "Invalid credentials"
-            });
-        
-            if(!verifyCode(token, user.TwoFASecret)) return res.status(403).json({
-                code: 403,
-                message: "User unrecognized"
-            });
+            if(!verifyCode(token, user.TwoFASecret)) throw new ForbiddenException("Code invalide")
 
             await prisma.user.update({
                 where: { id: id },
@@ -117,10 +97,7 @@ export const twoFactorController = {
                 message: "Two factor authentication disabled"
             })
         }catch(error){
-            return res.status(500).json({
-                code: 500,
-                message: error.name
-            });
+            throw new HttpException(500, error.message);
         }
     }
 };
