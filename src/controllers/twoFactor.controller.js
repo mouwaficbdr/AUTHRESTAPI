@@ -61,7 +61,10 @@ export const twoFactorController = {
         
             await prisma.user.update({
                 where: { id: id },
-                data: { twoFactorEnableAt: Date.now() }
+                data: { 
+                    twoFactorEnableAt: Date.now(),
+                    disabledAt: null
+                }
             });
         
             // Maintenant là on doit générer les 10 recovery codes pour les cas de perte.
@@ -74,6 +77,45 @@ export const twoFactorController = {
                 elevated_token
             })
             
+        }catch(error){
+            return res.status(500).json({
+                code: 500,
+                message: error.name
+            });
+        }
+    },
+
+    async disabled(req, res){
+        const { token } = req.body;
+        const id = req.user.userId;
+
+        try{
+            const user = await prisma.user.findUnique({
+                where: { id: id }
+            });
+        
+            if(!user) return res.status(401).json({
+                code: 401,
+                message: "Invalid credentials"
+            });
+        
+            if(!verifyCode(token, user.TwoFASecret)) return res.status(403).json({
+                code: 403,
+                message: "User unrecognized"
+            });
+
+            await prisma.user.update({
+                where: { id: id },
+                data: { 
+                    disabledAt: Date.now(),
+                    twoFactorEnableAt: null
+                }
+            });
+
+            res.status(200).json({
+                code: 200,
+                message: "Two factor authentication disabled"
+            })
         }catch(error){
             return res.status(500).json({
                 code: 500,

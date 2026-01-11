@@ -3,4 +3,5 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.post('/activate', twoFactorController.activate);
+router.get("/setup", twoFactorController.setup);
+router.post("/activate", twoFactorController.activate);
