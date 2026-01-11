@@ -12,6 +12,7 @@ import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/user.routes";
 import twoFactorRouter from "./routes/twoFactor.routes"
 import oauthRouter from "#routes/oauth.routes";
+import { authMiddleware } from "#middlewares/auth.middleware";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -45,7 +46,7 @@ app.get("/", (req, res) => {
 
 app.use("/users", userRouter);
 app.use("/", userRouter); // Pour garder /register et /login à la racine
-app.use("/auth/two-factor-auth", twoFactorRouter);
+app.use("/auth/two-factor-auth", authMiddleware, twoFactorRouter);
 app.use("/auth/oauth", oauthRouter); // Routes OAuth
 
 
