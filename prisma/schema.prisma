@@ -48,7 +48,7 @@ model OAuthAccount {
 
 model RefreshToken {
   id String @id
-  token String @unique
+  token String
   userAgent String
   ipAddress String
   revokedAt DateTime?

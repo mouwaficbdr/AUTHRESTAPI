@@ -43,3 +43,9 @@ export class ValidationException extends HttpException {
   }
 }
 
+export class InternalServerException extends HttpException {
+  constructor(message = "Internal Server Error") {
+    super(500, message);
+  }
+}
+
