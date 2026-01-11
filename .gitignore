@@ -9,6 +9,7 @@ pnpm-debug.log*
 .env
 .env.test
 .env.production
+.env.local
 .DS_Store
 
 # Prisma & BDD
@@ -17,9 +18,10 @@ prisma/dev.db-journal
 dev.db
 dev.db-journal
 generated/
-migrations/
+
 *.sqlite
 *.sqlite-journal
+
 
 # Editeur
 .vscode/
@@ -32,3 +34,5 @@ coverage/
 dist/
 build/
 
+
+/src/generated/prisma
