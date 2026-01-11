@@ -3,12 +3,14 @@ import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
 
+
 dotenv.config();
 
 import { logger, httpLogger } from "#lib/logger";
 import { errorHandler } from "#middlewares/error-handler";
 import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/user.routes";
+import authRoutes from "./routes/auth.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,14 +21,18 @@ app.use(cors());
 app.use(httpLogger);
 app.use(express.json());
 
+
 // Routes
 app.get("/", (req, res) => {
   res.json({ success: true, message: "API Express opérationnelle" });
 });
 
+
+
+
 // Utilisation des routes
-app.use("/users", userRouter);
-app.use("/", userRouter); // Pour garder /register et /login à la racine
+app.use("/users", userRouter); 
+app.use("/auth", authRoutes);
 
 // 404 handler
 app.use(notFoundHandler);
@@ -35,5 +41,5 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  logger.info(`Serveur démarré sur <http://localhost>:${PORT}`);
+  logger.info(`Serveur démarré sur <http://localhost:${PORT}>`);
 });
