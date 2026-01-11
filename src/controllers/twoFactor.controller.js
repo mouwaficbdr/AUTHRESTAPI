@@ -2,7 +2,7 @@ import prisma from "#lib/prisma";
 import { UserService } from "#services/user.service";
 import { ForbiddenException, HttpException, UnauthorizedException, ValidationException } from "#lib/exceptions";
 import { signToken } from "#lib/jwt";
-import { generateQRCode, generateSecret, verifyCode } from "#lib/authenticator";
+import { generateQRCode, generatedSecret, verifyCode } from "#lib/authenticator";
 
 export const twoFactorController = {
     async setup(req, res){
@@ -15,7 +15,7 @@ export const twoFactorController = {
 
             if(!user) throw new UnauthorizedException("Invalid credentials")
 
-            const userSecret = generateSecret();
+            const userSecret = generatedSecret();
 
             await prisma.user.update({
                 where: { email: email },
