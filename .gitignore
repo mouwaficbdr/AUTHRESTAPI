@@ -32,3 +32,5 @@ coverage/
 dist/
 build/
 
+
+/src/generated/prisma

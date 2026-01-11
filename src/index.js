@@ -10,6 +10,7 @@ import { logger, httpLogger } from "#lib/logger";
 import { errorHandler } from "#middlewares/error-handler";
 import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/user.routes";
+import twoFactorRouter from "./routes/twoFactor.routes"
 import oauthRouter from "#routes/oauth.routes";
 
 const app = express();
@@ -43,6 +44,7 @@ app.get("/", (req, res) => {
 // Utilisation des routes
 app.use("/users", userRouter);
 app.use("/", userRouter); // Pour garder /register et /login à la racine
+app.use("/two-factor-auth", twoFactorRouter);
 app.use("/auth/oauth", oauthRouter); // Routes OAuth
 
 // 404 handler
