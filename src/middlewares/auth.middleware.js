@@ -12,7 +12,7 @@ export const authMiddleware = async (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
-    //  Vérifier si le token est dans la Blacklist (BDD)
+    //  Vérifier si le token est dans la Blacklist 
     const isBlacklisted = await prisma.blacklistedAccessToken.findFirst({
       where: { token: token }
     });
@@ -21,7 +21,7 @@ export const authMiddleware = async (req, res, next) => {
       throw new UnauthorizedException("Session expirée (déconnectée). Veuillez vous reconnecter.");
     }
 
-    //  Vérifier la signature et l'expiration du JWT via ton fichier lib/jwt.js
+    //  Vérifier la signature et l'expiration du JWT 
     const payload = await verifyToken(token);
 
     // Pour que les routes suivantes puissent savoir qui est connecté
