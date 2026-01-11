@@ -32,3 +32,18 @@ coverage/
 dist/
 build/
 
+/src/generated/prisma
+
+# Editeur
+.vscode/
+.idea/
+
+# Tests
+coverage/
+
+# Misc
+dist/
+build/
+
+
+/src/generated/prisma
