@@ -1,6 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import prisma from '#lib/prisma';
-import { NotFoundException } from '#lib/exceptions';
 
 export class AuthService {
   static async requestPasswordReset(email) {
