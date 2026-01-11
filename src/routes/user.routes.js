@@ -9,10 +9,10 @@ const router = Router();
 // Inscription et Connexion
 router.post("/register", asyncHandler(UserController.register));
 router.post("/login", asyncHandler(UserController.login));
-router.post("/logout", asyncHandler(authMiddleware, UserController.logout));
+router.post("/logout", authMiddleware, asyncHandler(UserController.logout));
 router.post("/refresh", asyncHandler(UserController.refresh));
-router.post('/forgot-password', AuthController.forgotPassword);
-router.post('/reset-password', AuthController.resetPassword);
+router.post('/forgot-password', asyncHandler(AuthController.forgotPassword));
+router.post('/reset-password', asyncHandler(AuthController.resetPassword));
 
 // Consultation de la liste ou d'un utilisateur
 router.get("/", asyncHandler(UserController.getAll));

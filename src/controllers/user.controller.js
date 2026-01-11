@@ -78,7 +78,7 @@ export class UserController {
 
   //Search User by Id
   static async getById(req, res) {
-    const user = await UserService.findById(parseInt(req.params.id));
+    const user = await UserService.findById(req.params.id);
     res.json({
       success: true,
       user: UserDto.transform(user),

@@ -1,4 +1,6 @@
 import { AuthService } from "#services/auth.service";
+import { validateData } from "#lib/validate";
+import { forgotPasswordSchema, resetPasswordSchema } from "#schemas/auth.schema";
 
 export class AuthController {
   

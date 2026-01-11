@@ -1,5 +1,8 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import prisma from '#lib/prisma';
+import { hashPassword } from '#lib/password';
+import { NotFoundException } from '#lib/exceptions';
+import { logger } from '#lib/logger';
 
 export class AuthService {
   static async requestPasswordReset(email) {
@@ -27,6 +30,33 @@ export class AuthService {
     });
 
     // Envoyer l'e-mail 
-    console.log(`Lien de réinitialisation : http://frontend.com/reset-password?token=${resetToken}`);
+    logger.info(`Lien de réinitialisation : http://frontend.com/reset-password?token=${resetToken}`);
+  }
+
+  static async resetPassword(token, newPassword) {
+    // Trouver le token en base
+    const resetEntry = await prisma.passwordResetToken.findFirst({
+      where: { token },
+      include: { user: true }
+    });
+
+    // Vérifier s'il existe et s'il n'est pas expiré
+    if (!resetEntry || resetEntry.expiresAt < new Date()) {
+      throw new NotFoundException("Le lien de réinitialisation est invalide ou expiré.");
+    }
+
+    // Hacher le nouveau mot de passe
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Mettre à jour le password ET supprimer le token utilisé
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: resetEntry.userId },
+        data: { password: hashedPassword, updatedAt: new Date() }
+      }),
+      prisma.passwordResetToken.delete({
+        where: { id: resetEntry.id }
+      })
+    ]);
   }
 }

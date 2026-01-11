@@ -3,7 +3,6 @@ import { randomUUID } from 'node:crypto';
 import { hashPassword, verifyPassword } from "#lib/password";
 import { ConflictException, UnauthorizedException, NotFoundException } from "#lib/exceptions";
 import { signToken, verifyToken } from "#lib/jwt";
-import { verifyPassword, hashPassword } from '#lib/argon2';
 
 export class UserService {
   //Fonction d'inscription
@@ -24,6 +23,7 @@ export class UserService {
               password: hashedPassword, 
               firstName, 
               lastName, 
+              updatedAt: now,
               createdAt: now, 
               twoFactorSecret: "" 
             },
@@ -31,7 +31,7 @@ export class UserService {
   }
 
   //Fonction de connxion
-  static async login(email, password) {
+  static async login(email, password, ipAddress, userAgent) {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user || !(await verifyPassword(user.password, password))) {
@@ -94,7 +94,7 @@ export class UserService {
       where : {
         token : token,
         userId : payload.id,
-        revokeAt : null
+        revokedAt : null
       }
     });
 
@@ -139,7 +139,7 @@ static async resetPassword(token, newPassword) {
 
     // Vérifier s'il existe et s'il n'est pas expiré
     if (!resetEntry || resetEntry.expiresAt < new Date()) {
-      throw new Error("Le lien de réinitialisation est invalide ou expiré.");
+      throw new NotFoundException("Le lien de réinitialisation est invalide ou expiré.");
     }
 
     // Hacher le nouveau mot de passe

@@ -25,8 +25,7 @@ app.get("/", (req, res) => {
 });
 
 // Utilisation des routes
-app.use("/users", userRouter);
-app.use("/", userRouter); // Pour garder /register et /login à la racine
+app.use("/", userRouter);
 
 // 404 handler
 app.use(notFoundHandler);
