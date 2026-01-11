@@ -1,0 +1,56 @@
+{
+  "info": {
+    "name": "OAuth",
+    "description": "Collection pour tester les routes OAuth (Google)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Google OAuth",
+      "item": [
+        {
+          "name": "Redirection OAuth Google",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/auth/oauth/google",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["auth", "oauth", "google"]
+            },
+            "description": "Redirige vers la page de consentement Google. À utiliser dans le navigateur."
+          }
+        },
+        {
+          "name": "Google OAuth Callback",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/auth/oauth/google/callback?code=YOUR_AUTHORIZATION_CODE&state=YOUR_STATE",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["auth", "oauth", "google", "callback"],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "YOUR_AUTHORIZATION_CODE",
+                  "description": "Code d'autorisation retourné par Google"
+                },
+                {
+                  "key": "state",
+                  "value": "YOUR_STATE",
+                  "description": "État CSRF retourné par Google"
+                }
+              ]
+            },
+            "description": "Callback OAuth Google. Traitée automatiquement après redirection depuis Google."
+          }
+        }
+      ]
+    }
+  ]
+}
