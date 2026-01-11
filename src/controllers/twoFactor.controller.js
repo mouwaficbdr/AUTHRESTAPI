@@ -61,8 +61,7 @@ export const twoFactorController = {
                 code: 200,
                 message: "2FA Activated successfully",
                 elevated_token
-            })
-            
+            });
         }catch(error){
             throw new HttpException(500, error.message);
         }
@@ -93,5 +92,23 @@ export const twoFactorController = {
         }catch(error){
             throw new HttpException(500, error.message);
         }
+    },
+
+    async verify(req, res){
+        const { token } = req.body;
+        const id = req.user.id;
+
+        const secret = prisma.user.findUnique({
+            where: { id: id },
+            select: { twoFactorSecret }
+        });
+
+        const result = verifyCode(token, secret);
+
+        if(!result) throw new UnauthorizedException("Code invalide");
+
+        return res.status(200).json({
+            code: 200,
+        });
     }
 };
