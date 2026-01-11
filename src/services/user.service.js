@@ -81,7 +81,7 @@ export class UserService {
   }
 
 
-  static async refresh(token, userAgent, ipAddress){
+  static async refresh(token, ipAddress, userAgent){
 
     //vérifier la validité du JWT
     const payload = await verifyToken(token);

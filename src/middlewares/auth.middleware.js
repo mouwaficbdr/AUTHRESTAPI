@@ -24,11 +24,10 @@ export const authMiddleware = async (req, res, next) => {
     //  Vérifier la signature et l'expiration du JWT via ton fichier lib/jwt.js
     const payload = await verifyToken(token);
 
-    //  On attache les infos de l'utilisateur à l'objet 'req'
     // Pour que les routes suivantes puissent savoir qui est connecté
     req.user = payload;
 
-    next(); // On passe à la suite (le contrôleur)
+    next(); 
   } catch (error) {
     // Si le token est expiré ou invalide, verifyToken lancera une erreur
     next(new UnauthorizedException(error.message || "Non autorisé"));
