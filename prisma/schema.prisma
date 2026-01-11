@@ -9,7 +9,7 @@ datasource db {
 model User {
   id String @id
   email String @unique
-  password String
+  password String @default("")
   firstName String
   lastName String
   emailVerifiedAt DateTime?
@@ -41,7 +41,7 @@ model OAuthAccount {
 
 model RefreshToken {
   id String @id
-  token String
+  token String @unique
   userAgent String
   ipAddress String
   revokedAt DateTime?
@@ -50,12 +50,12 @@ model RefreshToken {
   
   // Pour savoir à qui appartient un refresh token
   user User @relation(fields: [userId], references: [id])
-  userId String @unique
+  userId String
 }
 
 model BlacklistedAccessToken {
   id String @id
-  token String
+  token String @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
 
