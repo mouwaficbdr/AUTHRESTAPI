@@ -10,7 +10,7 @@ import { logger, httpLogger } from "#lib/logger";
 import { errorHandler } from "#middlewares/error-handler";
 import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/user.routes";
-import twoFactorRouter from "./routes/twoFactor.routes"
+import twoFactorRouter from "#routes/twoFactor.routes"
 import oauthRouter from "#routes/oauth.routes";
 import { authMiddleware } from "#middlewares/auth.middleware";
 
