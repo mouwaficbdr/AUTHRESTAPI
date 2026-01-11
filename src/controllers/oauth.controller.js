@@ -1,14 +1,15 @@
-import { randomBytes } from "crypto";
-import { asyncHandler } from "#lib/async-handler";
+import { randomBytes } from 'crypto';
+import { asyncHandler } from '#lib/async-handler';
+import { signToken } from '#lib/jwt';
 import {
   getAuthorizationUrl,
   exchangeCodeForToken,
   getUserInfo,
   findOrCreateUser,
-} from "#services/oauth.service";
+} from '#services/oauth.service';
 
 export const redirectToGoogle = asyncHandler(async (req, res) => {
-  const state = randomBytes(32).toString("hex");
+  const state = randomBytes(32).toString('hex');
 
   req.session.oauthState = state;
 
@@ -23,14 +24,14 @@ export const handleGoogleCallback = asyncHandler(async (req, res) => {
   if (!code || !state) {
     return res.status(400).json({
       success: false,
-      message: "Paramètres manquants dans le callback",
+      message: 'Paramètres manquants dans le callback',
     });
   }
 
   if (state !== req.session.oauthState) {
     return res.status(400).json({
       success: false,
-      message: "État CSRF invalide",
+      message: 'État CSRF invalide',
     });
   }
 
@@ -40,10 +41,16 @@ export const handleGoogleCallback = asyncHandler(async (req, res) => {
   const googleUser = await getUserInfo(googleAccessToken);
   const user = await findOrCreateUser(googleUser);
 
+  const token = await signToken({
+    userId: user.id,
+    email: user.email,
+  });
+
   res.json({
     success: true,
-    message: "Connexion OAuth réussie",
+    message: 'Connexion OAuth réussie',
     data: {
+      token,
       user: {
         id: user.id,
         email: user.email,
