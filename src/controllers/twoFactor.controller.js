@@ -106,7 +106,7 @@ export const twoFactorController = {
 
             await prisma.user.update({
                 where: { id: id },
-                data: { 
+                data: {
                     disabledAt: Date.now(),
                     twoFactorEnableAt: null
                 }
