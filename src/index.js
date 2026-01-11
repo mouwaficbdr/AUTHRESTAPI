@@ -44,7 +44,7 @@ app.get("/", (req, res) => {
 // Utilisation des routes
 app.use("/users", userRouter);
 app.use("/", userRouter); // Pour garder /register et /login à la racine
-app.use("/two-factor-auth", twoFactorRouter);
+app.use("/auth/two-factor-auth", twoFactorRouter);
 app.use("/auth/oauth", oauthRouter); // Routes OAuth
 
 // 404 handler
