@@ -1,6 +1,6 @@
 import prisma from "#lib/prisma";
 import { UserService } from "#services/user.service";
-import { ForbiddenException, HttpException, ValidationException } from "#lib/exceptions";
+import { ForbiddenException, HttpException, UnauthorizedException, ValidationException } from "#lib/exceptions";
 import { signToken } from "#lib/jwt";
 import { generateQRCode, generateSecret, verifyCode } from "#lib/authenticator";
 
@@ -13,10 +13,7 @@ export const twoFactorController = {
                 where: { email: email }
             });
 
-            if(!user) return res.status(401).json({
-                code: 401,
-                message: "Invalid credentials",
-            });
+            if(!user) throw new UnauthorizedException("Invalid credentials")
 
             const userSecret = generateSecret();
 
@@ -33,10 +30,7 @@ export const twoFactorController = {
                 qrCode
             })
         }catch(error){
-            return res.status(500).json({
-                code: 500,
-                message: error.message
-            });
+            throw new HttpException(500, error.message);
         }
     },
 
@@ -61,7 +55,7 @@ export const twoFactorController = {
         
             // Maintenant là on doit générer les 10 recovery codes pour les cas de perte.
         
-            const elevated_token = signToken({ id: id, twoFactorActivate}, '15m');
+            const elevated_token = signToken({ id: id}, '15m');
 
             return res.status(200).json({
                 code: 200,
