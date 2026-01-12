@@ -3,7 +3,6 @@ import session from 'express-session';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 // Validation des variables d'environnement critiques
@@ -23,9 +22,11 @@ import oauthRouter from '#routes/oauth.routes';
 import twoFactorRouter from '#routes/twoFactor.routes';
 import sessionRouter from '#routes/session.routes';
 import { authMiddleware } from '#middlewares/auth.middleware';
+import prisma from '#lib/prisma';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 
 // Middlewares
 app.use(helmet());
@@ -66,6 +67,12 @@ app.use(notFoundHandler);
 
 // Global error handler
 app.use(errorHandler);
+
+process.on("SIGTERM", async ()=>{
+    await prisma.$disconnect();
+    console.log("Gracefullt shutting down...")
+    process.exit(0);
+});
 
 app.listen(PORT, () => {
   logger.info(`Serveur démarré sur http://localhost:${PORT}`);

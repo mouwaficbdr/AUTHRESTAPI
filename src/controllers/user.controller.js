@@ -3,6 +3,7 @@ import { UserDto } from "#dto/user.dto";
 import { signToken } from "#lib/jwt";
 import { validateData } from "#lib/validate";
 import { registerSchema, loginSchema } from "#schemas/user.schema";
+import { success } from "zod";
 
 export class UserController {
   //register
@@ -11,7 +12,7 @@ export class UserController {
     const user = await UserService.register(validatedData);
     const token = await signToken({ userId: user.id });
 
-    res.status(201).json({
+    res.status(201).json({ 
       success: true,
       user: UserDto.transform(user),
       token,
@@ -24,8 +25,8 @@ export class UserController {
     const { email, password } = validatedData;
 
     const {accessToken, refreshToken, user} = await UserService.login(
-      req.body.email, 
-      req.body.password,
+      email, 
+      password,
       req.ip,
       req.headers['user-agent']
     );
@@ -84,4 +85,31 @@ export class UserController {
       user: UserDto.transform(user),
     });
   }
+
+  // Profil Update
+  static async updateProfile(req,res){
+
+    const updatedUser = await UserService.updateProfile(req);
+
+    res.status(200).json({
+        success:true,
+        data:{ 
+          user:UserDto.transform(updatedUser),
+        }
+    });
+  }
+
+  static async deleteAccount(req,res){
+
+      const deletedUser = await UserService.deleteAccount(req,res);
+
+      res.status(200).json({
+          success:true,
+          data:{
+            user: UserDto.transform(deletedUser)
+          },
+          message:"User deleted succesfully"
+      });
+  }
+
 }
