@@ -18,4 +18,9 @@ router.post('/reset-password', asyncHandler(resetPassword));
 router.get("/", asyncHandler(UserController.getAll));
 router.get("/:id", asyncHandler(UserController.getById));
 
+// Gestion Profil
+
+router.put('/updateInfos',authMiddleware,asyncHandler(UserController.updateProfile));
+router.delete('/deleteAccount',authMiddleware,asyncHandler(UserController.deleteAccount));
+
 export default router;

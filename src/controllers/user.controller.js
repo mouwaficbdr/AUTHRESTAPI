@@ -3,6 +3,7 @@ import { UserDto } from "#dto/user.dto";
 import { signToken } from "#lib/jwt";
 import { validateData } from "#lib/validate";
 import { registerSchema, loginSchema } from "#schemas/user.schema";
+import { success } from "zod";
 
 export class UserController {
   //register
@@ -84,4 +85,30 @@ export class UserController {
       user: UserDto.transform(user),
     });
   }
+
+  // Profil Update
+  static async updateProfile(req,res){
+
+    const updatedUser = await UserService.updateProfile(req);
+
+    res.status(200).json({
+        success:true,
+        data:{ 
+          user:UserDto.transform(updatedUser),
+        }
+    });
+  }
+
+  static async deleteAccount(req,res){
+
+      const deletedUser = await UserService.deleteAccount(req);
+
+      res.status(200).json({
+          success:true,
+          data:{
+            user: UserDto.transform(deletedUser)
+          }
+      });
+  }
+
 }

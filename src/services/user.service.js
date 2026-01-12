@@ -1,7 +1,7 @@
 import prisma from "#lib/prisma";
 import { randomUUID } from 'node:crypto';
 import { hashPassword, verifyPassword } from "#lib/password";
-import { ConflictException, UnauthorizedException, NotFoundException } from "#lib/exceptions";
+import { ConflictException, UnauthorizedException, NotFoundException, InternalServerException, ForbiddenException } from "#lib/exceptions";
 import { signToken, verifyToken } from "#lib/jwt";
 
 export class UserService {
@@ -43,23 +43,23 @@ export class UserService {
       const refreshToken = await signToken({ id: user.id }, '7d');
       
     //Stocker le refresh token dans la BDD
-      await prisma.refreshToken.upsert({
-        where: { userId: user.id },
-        update: {
-          token: refreshToken,
-          ipAddress,
-          userAgent,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 jours
-        },
-        create: {
-          id: randomUUID(),
-          token: refreshToken,
-          userId: user.id,
-          ipAddress,
-          userAgent,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        }
-      });
+        await prisma.refreshToken.upsert({
+          where: { userId: user.id },
+          update: {
+            token: refreshToken,
+            ipAddress,
+            userAgent,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 jours
+          },
+          create: {
+            id: randomUUID(),
+            token: refreshToken,
+            userId: user.id,
+            ipAddress,
+            userAgent,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          }
+        });
 
     //Stocker le succes dans LoginHistory
       await prisma.loginHistory.create({
@@ -189,7 +189,7 @@ static async resetPassword(token, newPassword) {
   }
 
   static async findAll() {
-    return prisma.user.findMany();
+    return await prisma.user.findMany();
   }
 
   static async findById(id) {
@@ -201,4 +201,50 @@ static async resetPassword(token, newPassword) {
 
     return user;
   }
+
+  static async updateProfile(req){
+
+    try{
+      const userId = req.user.id;
+      
+      const {firstName,lastName} = req.body;
+
+      if(!userId){
+        throw new ForbiddenException();
+      }
+
+      const updatedUser = await prisma.user.update({
+        where:{id:userId},
+        data:{
+          firstName,
+          lastName
+        }
+      });
+
+      return updatedUser;
+
+    }catch(err){
+      console.log(err);
+      throw new InternalServerException();
+    }
+  }
+
+  static async deleteAccount(req){
+      try{
+
+        if(!req.user.id){
+          throw new ForbiddenException("Forbidden action to non authentified users ...");
+        }
+
+        const deletedUser = await prisma.user.delete({
+          where:{id:req.user.id}
+        });
+
+        return deletedUser;
+
+      }catch(err){
+          throw new InternalServerException("Internal Server error")
+      }
+  }
+
 }

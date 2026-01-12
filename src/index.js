@@ -3,7 +3,7 @@ import session from 'express-session';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-
+import {rateLimit} from 'express-rate-limit'
 dotenv.config();
 
 // Validation des variables d'environnement critiques
@@ -22,15 +22,23 @@ import userRouter from '#routes/user.routes';
 import oauthRouter from '#routes/oauth.routes';
 import twoFactorRouter from '#routes/twoFactor.routes';
 import { authMiddleware } from '#middlewares/auth.middleware';
+import prisma from '#lib/prisma';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+let limiter = rateLimit({
+  max:1000,
+  windowMs:  60 * 60 * 1000,
+  message: "We have received too many request from this IP, Please try an hour later"
+})
 
 // Middlewares
 app.use(helmet());
 app.use(cors());
 app.use(httpLogger);
 app.use(express.json());
+app.use(limiter);
 
 // Configuration de la session pour OAuth
 app.use(
@@ -64,6 +72,12 @@ app.use(notFoundHandler);
 
 // Global error handler
 app.use(errorHandler);
+
+process.on("SIGTERM", async ()=>{
+    await prisma.$disconnect();
+    console.log("Gracefullt shutting down...")
+    process.exit(0);
+});
 
 app.listen(PORT, () => {
   logger.info(`Serveur démarré sur http://localhost:${PORT}`);
