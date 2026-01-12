@@ -23,6 +23,7 @@ export const twoFactorController = {
             });
 
             const qrCode = await generateQRCode(email, userSecret);
+            console.log(typeof(qrCode));
 
             res.status(200).json({
                 code: 200,

@@ -10,6 +10,7 @@ export class UserService {
     const { email, password, firstName, lastName } = data;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
+    console.log(existingUser);
     if (existingUser) {
       throw new ConflictException("Email déjà utilisé");
     }
