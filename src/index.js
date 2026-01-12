@@ -57,7 +57,7 @@ app.get('/', (req, res) => {
 
 app.use('/users', userRouter);
 app.use('/', userRouter); // Pour garder /register et /login à la racine
-app.use('/auth/two-factor-auth', twoFactorRouter);
+app.use('/auth/two-factor-auth', authMiddleware, twoFactorRouter);
 app.use('/auth/oauth', oauthRouter); // Routes OAuth
 app.use('/sessions', sessionRouter);
 
