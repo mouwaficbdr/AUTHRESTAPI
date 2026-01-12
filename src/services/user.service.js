@@ -34,7 +34,7 @@ export class UserService {
   static async login(email, password, ipAddress, userAgent) {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !(await verifyPassword(user.password, password))) {
+    if (!user || !user.password || !(await verifyPassword(user.password, password))) {
       throw new UnauthorizedException("Identifiants invalides");
     }
     
@@ -43,15 +43,8 @@ export class UserService {
       const refreshToken = await signToken({ id: user.id }, '7d');
       
     //Stocker le refresh token dans la BDD
-        await prisma.refreshToken.upsert({
-          where: { userId: user.id },
-          update: {
-            token: refreshToken,
-            ipAddress,
-            userAgent,
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 jours
-          },
-          create: {
+        await prisma.refreshToken.create({
+          data: {
             id: randomUUID(),
             token: refreshToken,
             userId: user.id,
@@ -229,7 +222,7 @@ static async resetPassword(token, newPassword) {
     }
   }
 
-  static async deleteAccount(req){
+  static async deleteAccount(req,res){
       try{
 
         if(!req.user.id){
@@ -243,7 +236,11 @@ static async resetPassword(token, newPassword) {
         return deletedUser;
 
       }catch(err){
-          throw new InternalServerException("Internal Server error")
+          console.log(err);
+          return res.json({
+            success:false,
+            error:err
+          })
       }
   }
 

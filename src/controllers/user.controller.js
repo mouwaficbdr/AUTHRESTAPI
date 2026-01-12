@@ -12,7 +12,7 @@ export class UserController {
     const user = await UserService.register(validatedData);
     const token = await signToken({ userId: user.id });
 
-    res.status(201).json({
+    res.status(201).json({ 
       success: true,
       user: UserDto.transform(user),
       token,
@@ -25,8 +25,8 @@ export class UserController {
     const { email, password } = validatedData;
 
     const {accessToken, refreshToken, user} = await UserService.login(
-      req.body.email, 
-      req.body.password,
+      email, 
+      password,
       req.ip,
       req.headers['user-agent']
     );
@@ -101,13 +101,14 @@ export class UserController {
 
   static async deleteAccount(req,res){
 
-      const deletedUser = await UserService.deleteAccount(req);
+      const deletedUser = await UserService.deleteAccount(req,res);
 
       res.status(200).json({
           success:true,
           data:{
             user: UserDto.transform(deletedUser)
-          }
+          },
+          message:"User deleted succesfully"
       });
   }
 
