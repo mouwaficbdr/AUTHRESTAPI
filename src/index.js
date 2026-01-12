@@ -20,6 +20,7 @@ import { notFoundHandler } from '#middlewares/not-found';
 import userRouter from '#routes/user.routes';
 import oauthRouter from '#routes/oauth.routes';
 import twoFactorRouter from '#routes/twoFactor.routes';
+import sessionRouter from '#routes/session.routes';
 import { authMiddleware } from '#middlewares/auth.middleware';
 import prisma from '#lib/prisma';
 
@@ -59,6 +60,7 @@ app.use('/users', userRouter);
 app.use('/', userRouter); // Pour garder /register et /login à la racine
 app.use('/auth/two-factor-auth', authMiddleware, twoFactorRouter);
 app.use('/auth/oauth', oauthRouter); // Routes OAuth
+app.use('/sessions', sessionRouter);
 
 // 404 handler
 app.use(notFoundHandler);

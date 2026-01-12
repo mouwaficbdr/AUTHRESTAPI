@@ -23,6 +23,7 @@ export const twoFactorController = {
             });
 
             const qrCode = await generateQRCode(email, userSecret);
+            console.log(typeof(qrCode));
 
             res.status(200).json({
                 code: 200,
@@ -48,8 +49,7 @@ export const twoFactorController = {
             await prisma.user.update({
                 where: { id: id },
                 data: { 
-                    twoFactorEnableAt: Date.now(),
-                    disabledAt: null
+                    twoFactorEnableAt: new Date(),
                 }
             });
         

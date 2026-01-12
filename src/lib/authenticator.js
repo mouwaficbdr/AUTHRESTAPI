@@ -1,6 +1,7 @@
 import { generateSecret, verify, generateURI } from 'otplib';
+import qrcode from 'qrcode';
 
-export const generatedSecret = async () => {
+export const generatedSecret = () => {
     return generateSecret();
 }
 
