@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
@@ -33,6 +34,7 @@ app.use(helmet());
 app.use(cors());
 app.use(httpLogger);
 app.use(express.json());
+app.use(cookieParser()); // Ajouter ceci AVANT les routes
 
 // Configuration de la session pour OAuth
 app.use(

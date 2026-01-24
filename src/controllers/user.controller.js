@@ -3,7 +3,6 @@ import { UserDto } from "#dto/user.dto";
 import { signToken } from "#lib/jwt";
 import { validateData } from "#lib/validate";
 import { registerSchema, loginSchema } from "#schemas/user.schema";
-import { success } from "zod";
 
 export class UserController {
   //register
@@ -24,32 +23,37 @@ export class UserController {
     const validatedData = validateData(loginSchema, req.body);
     const { email, password } = validatedData;
 
-    try{const {accessToken, refreshToken, user} = await UserService.login(
+    const {accessToken, refreshToken, user} = await UserService.login(
       email, 
       password,
       req.ip,
       req.headers['user-agent']
     );
 
+    // Stocker le refreshToken dans un cookie sécurisé
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+      path: '/'
+    });
+
     res.json({
       success: true,
       user: UserDto.transform(user),
       accessToken,
-      refreshToken,
-    });}catch(error){
-      res.json({
-        error : error
-      })
-    }
+    });
   }
 
   //Logout
   static async logout(req, res) {
     const accessToken = req.headers.authorization?.split(' ')[1];
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken;
 
     await UserService.logout(req.user.id, accessToken, refreshToken);
     
+    res.clearCookie('refreshToken', { path: '/' });
     res.json({ success: true, message: "Déconnexion réussie" });
   }
 
@@ -61,10 +65,14 @@ export class UserController {
     });
   }
 
-
   //Refresh
   static async refresh(req, res) {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken;
+    
+    if (!refreshToken) {
+      return res.status(401).json({ success: false, error: "Refresh token manquant" });
+    }
+
     const result = await UserService.refresh(refreshToken, req.ip, req.headers['user-agent']);
     res.json({ success: true, ...result });
   }
