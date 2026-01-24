@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -21,8 +21,6 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Pour accéder à la refreshToken d'un utilisateur
-  refreshToken RefreshToken[]
-  oauth OAuthAccount[]
   blacklistAccessToken BlacklistedAccessToken[]
   loginHistory         LoginHistory[]
   oauth                OAuthAccount[]
@@ -63,9 +61,6 @@ model BlacklistedAccessToken {
   createdAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
 }
 
 model VerificationToken {

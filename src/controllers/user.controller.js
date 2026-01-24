@@ -24,7 +24,7 @@ export class UserController {
     const validatedData = validateData(loginSchema, req.body);
     const { email, password } = validatedData;
 
-    const {accessToken, refreshToken, user} = await UserService.login(
+    try{const {accessToken, refreshToken, user} = await UserService.login(
       email, 
       password,
       req.ip,
@@ -36,7 +36,11 @@ export class UserController {
       user: UserDto.transform(user),
       accessToken,
       refreshToken,
-    });
+    });}catch(error){
+      res.json({
+        error : error
+      })
+    }
   }
 
   //Logout
