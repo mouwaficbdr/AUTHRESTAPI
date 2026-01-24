@@ -3,6 +3,7 @@ import prisma from '#lib/prisma';
 import { hashPassword } from '#lib/password';
 import { NotFoundException } from '#lib/exceptions';
 import { logger } from '#lib/logger';
+import { EmailService } from '#services/email.service';
 
 export class AuthService {
   static async requestPasswordReset(email) {
@@ -29,8 +30,14 @@ export class AuthService {
       }
     });
 
-    // Envoyer l'e-mail 
-    logger.info(`Lien de réinitialisation : http://frontend.com/reset-password?token=${resetToken}`);
+    // Envoyer l'e-mail avec Mailtrap
+    try {
+      await EmailService.sendPasswordResetEmail(email, resetToken, user.name);
+      logger.info(`Email de réinitialisation envoyé à ${email}`);
+    } catch (error) {
+      logger.error(`Erreur lors de l'envoi de l'email à ${email}:`, error);
+      // On ne lance pas l'erreur pour ne pas révéler à l'utilisateur si l'email existe
+    }
   }
 
   static async resetPassword(token, newPassword) {
@@ -58,5 +65,17 @@ export class AuthService {
         where: { id: resetEntry.id }
       })
     ]);
+
+    // Envoyer l'email de confirmation de réinitialisation
+    try {
+      await EmailService.sendPasswordResetConfirmation(
+        resetEntry.user.email,
+        resetEntry.user.name
+      );
+      logger.info(`Email de confirmation de réinitialisation envoyé à ${resetEntry.user.email}`);
+    } catch (error) {
+      logger.error(`Erreur lors de l'envoi de l'email de confirmation à ${resetEntry.user.email}:`, error);
+      // On ne lance pas l'erreur car la réinitialisation a déjà eu lieu
+    }
   }
 }
